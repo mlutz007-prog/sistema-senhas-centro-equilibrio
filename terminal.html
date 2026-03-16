@@ -2,10 +2,59 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Teste</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico Supabase</title>
 </head>
 <body>
-  <h1>Página funcionando</h1>
-  <p>Se você está vendo isso, o HTML carregou corretamente.</p>
+  <h1>Diagnóstico Supabase</h1>
+  <pre id="saida">Iniciando testes...</pre>
+
+  <script type="module">
+    const saida = document.getElementById('saida')
+
+    const SUPABASE_URL = 'https://fggqjiecmmjclyplbrky.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_GNJs0dkLSe4R7sQwl7QnYw_Zp_60SN8'
+
+    function escrever(texto) {
+      saida.textContent += '\n' + texto
+      console.log(texto)
+    }
+
+    async function testar() {
+      saida.textContent = 'Teste iniciado...\n'
+
+      escrever('1) Testando acesso básico ao domínio do Supabase...')
+      try {
+        const r1 = await fetch(SUPABASE_URL, { method: 'GET' })
+        escrever('Resposta domínio: status ' + r1.status)
+      } catch (e) {
+        escrever('Falha no domínio: ' + e.message)
+      }
+
+      escrever('\n2) Testando Data API...')
+      try {
+        const r2 = await fetch(
+          SUPABASE_URL + '/rest/v1/fila?select=*',
+          {
+            method: 'GET',
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: 'Bearer ' + SUPABASE_KEY
+            }
+          }
+        )
+
+        escrever('Status Data API: ' + r2.status)
+
+        const texto = await r2.text()
+        escrever('Resposta Data API:')
+        escrever(texto)
+      } catch (e) {
+        escrever('Falha na Data API: ' + e.message)
+      }
+    }
+
+    testar()
+  </script>
 </body>
 </html>
