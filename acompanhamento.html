@@ -1,1 +1,27 @@
+<script type="module">
+import { supabase } from './js/supabase.js'
 
+async function carregarFila(){
+
+  const { data } = await supabase
+    .from('fila')
+    .select('*')
+    .in('status',['aguardando','chamado'])
+    .order('senha',{ascending:true})
+
+  const lista = document.getElementById("fila")
+  lista.innerHTML=""
+
+  data.forEach(s => {
+    const li = document.createElement("li")
+    li.textContent = "Senha " + s.senha + " - " + s.status
+    lista.appendChild(li)
+  })
+
+}
+
+setInterval(carregarFila,2000)
+carregarFila()
+</script>
+
+<ul id="fila"></ul>
