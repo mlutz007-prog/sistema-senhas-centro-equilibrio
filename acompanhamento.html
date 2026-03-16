@@ -1,55 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Terminal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal</title>
 </head>
-
 <body>
+  <h1>Terminal de Senhas</h1>
 
-<h1>Terminal de Senhas</h1>
+  <button id="btnRetirar">Retirar Senha</button>
+  <p id="mensagem"></p>
 
-<button id="btnRetirar">Retirar Senha</button>
+  <script type="module">
+    import { supabase } from './js/supabase.js'
 
-<p id="mensagem"></p>
+    const btn = document.getElementById('btnRetirar')
+    const msg = document.getElementById('mensagem')
 
-<script type="module">
+    async function gerarSenha() {
+      try {
+        msg.textContent = 'Gerando senha...'
 
-import { supabase } from './js/supabase.js'
+        const { data, error } = await supabase
+          .from('fila')
+          .select('senha')
+          .order('senha', { ascending: false })
+          .limit(1)
 
-const btn = document.getElementById("btnRetirar")
-const msg = document.getElementById("mensagem")
+        if (error) throw error
 
-btn.addEventListener("click", async () => {
+        let proxima = 1
 
-msg.textContent = "Gerando senha..."
+        if (data && data.length > 0) {
+          proxima = data[0].senha + 1
+        }
 
-const { data } = await supabase
-.from("fila")
-.select("senha")
-.order("senha",{ascending:false})
-.limit(1)
+        const { error: insertError } = await supabase
+          .from('fila')
+          .insert([{
+            senha: proxima,
+            nome: 'Paciente',
+            prioritario: false,
+            status: 'aguardando',
+            hora_chegada: new Date().toISOString()
+          }])
 
-let proxima = 1
+        if (insertError) throw insertError
 
-if(data.length>0){
-proxima = data[0].senha + 1
-}
+        msg.textContent = 'Senha gerada: ' + proxima
+        alert('Senha gerada: ' + proxima)
+      } catch (e) {
+        console.error(e)
+        msg.textContent = 'Erro: ' + e.message
+      }
+    }
 
-await supabase
-.from("fila")
-.insert([{
-senha:proxima,
-nome:"Paciente",
-prioritario:false,
-status:"aguardando"
-}])
-
-msg.textContent = "Senha gerada: "+proxima
-
-})
-
-</script>
-
+    btn.addEventListener('click', gerarSenha)
+  </script>
 </body>
 </html>
