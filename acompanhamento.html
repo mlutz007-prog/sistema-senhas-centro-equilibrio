@@ -9,17 +9,16 @@
   <h1>Terminal de Senhas</h1>
 
   <button id="btnRetirar">Retirar Senha</button>
-
   <p id="mensagem"></p>
 
   <script type="module">
     import { supabase } from './js/supabase.js'
 
-    const btnRetirar = document.getElementById('btnRetirar')
-    const mensagem = document.getElementById('mensagem')
+    const btn = document.getElementById('btnRetirar')
+    const msg = document.getElementById('mensagem')
 
     async function gerarSenha() {
-      mensagem.textContent = 'Gerando senha...'
+      msg.textContent = 'Gerando senha...'
 
       try {
         const { data, error } = await supabase
@@ -28,14 +27,9 @@
           .order('senha', { ascending: false })
           .limit(1)
 
-        if (error) {
-          mensagem.textContent = 'Erro ao buscar última senha: ' + error.message
-          console.error(error)
-          return
-        }
+        if (error) throw error
 
         let proxima = 1
-
         if (data && data.length > 0 && data[0].senha != null) {
           proxima = Number(data[0].senha) + 1
         }
@@ -52,21 +46,17 @@
             }
           ])
 
-        if (insertError) {
-          mensagem.textContent = 'Erro ao inserir senha: ' + insertError.message
-          console.error(insertError)
-          return
-        }
+        if (insertError) throw insertError
 
-        mensagem.textContent = 'Senha gerada com sucesso: ' + proxima
+        msg.textContent = 'Senha gerada: ' + proxima
         alert('Senha gerada: ' + proxima)
       } catch (e) {
-        mensagem.textContent = 'Erro geral: ' + e.message
         console.error(e)
+        msg.textContent = 'Erro: ' + e.message
       }
     }
 
-    btnRetirar.addEventListener('click', gerarSenha)
+    btn.addEventListener('click', gerarSenha)
   </script>
 </body>
 </html>
