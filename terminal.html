@@ -1,15 +1,38 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal</title>
+</head>
+<body>
+  <h1>Terminal de Senhas</h1>
+  <p>Teste de leitura do banco Supabase:</p>
 
-import { supabase } from './js/supabase.js'
+  <pre id="saida">Carregando dados...</pre>
 
-async function retirarSenha(){
+  <script type="module">
+    import { supabase } from './js/supabase.js'
 
-const { data, error } = await supabase
-.from('fila')
-.insert([{nome:"Paciente"}])
+    const saida = document.getElementById('saida')
 
-console.log(data)
+    async function testarConexao() {
+      const { data, error } = await supabase
+        .from('fila')
+        .select('*')
+        .order('id', { ascending: true })
 
-}
+      if (error) {
+        saida.textContent = 'Erro ao buscar dados: ' + error.message
+        console.error('Erro Supabase:', error)
+        return
+      }
 
-</script>
+      saida.textContent = JSON.stringify(data, null, 2)
+      console.log('Dados recebidos:', data)
+    }
+
+    testarConexao()
+  </script>
+</body>
+</html>
