@@ -1,62 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal</title>
+<meta charset="UTF-8">
+<title>Terminal</title>
 </head>
+
 <body>
-  <h1>Terminal de Senhas</h1>
 
-  <button id="btnRetirar">Retirar Senha</button>
-  <p id="mensagem"></p>
+<h1>Terminal de Senhas</h1>
 
-  <script type="module">
-    import { supabase } from './js/supabase.js'
+<button id="btnRetirar">Retirar Senha</button>
 
-    const btn = document.getElementById('btnRetirar')
-    const msg = document.getElementById('mensagem')
+<p id="mensagem"></p>
 
-    async function gerarSenha() {
-      msg.textContent = 'Gerando senha...'
+<script type="module">
 
-      try {
-        const { data, error } = await supabase
-          .from('fila')
-          .select('senha')
-          .order('senha', { ascending: false })
-          .limit(1)
+import { supabase } from './js/supabase.js'
 
-        if (error) throw error
+const btn = document.getElementById("btnRetirar")
+const msg = document.getElementById("mensagem")
 
-        let proxima = 1
-        if (data && data.length > 0 && data[0].senha != null) {
-          proxima = Number(data[0].senha) + 1
-        }
+btn.addEventListener("click", async () => {
 
-        const { error: insertError } = await supabase
-          .from('fila')
-          .insert([
-            {
-              senha: proxima,
-              nome: 'Paciente',
-              prioritario: false,
-              status: 'aguardando',
-              hora_chegada: new Date().toISOString()
-            }
-          ])
+msg.textContent = "Gerando senha..."
 
-        if (insertError) throw insertError
+const { data } = await supabase
+.from("fila")
+.select("senha")
+.order("senha",{ascending:false})
+.limit(1)
 
-        msg.textContent = 'Senha gerada: ' + proxima
-        alert('Senha gerada: ' + proxima)
-      } catch (e) {
-        console.error(e)
-        msg.textContent = 'Erro: ' + e.message
-      }
-    }
+let proxima = 1
 
-    btn.addEventListener('click', gerarSenha)
-  </script>
+if(data.length>0){
+proxima = data[0].senha + 1
+}
+
+await supabase
+.from("fila")
+.insert([{
+senha:proxima,
+nome:"Paciente",
+prioritario:false,
+status:"aguardando"
+}])
+
+msg.textContent = "Senha gerada: "+proxima
+
+})
+
+</script>
+
 </body>
 </html>
