@@ -1,1 +1,15 @@
+<script type="module">
 
+import { supabase } from './js/supabase.js'
+
+async function retirarSenha(){
+
+const { data, error } = await supabase
+.from('fila')
+.insert([{nome:"Paciente"}])
+
+console.log(data)
+
+}
+
+</script>
