@@ -2,37 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal</title>
+  <title>Teste</title>
 </head>
 <body>
-  <h1>Terminal de Senhas</h1>
-  <p>Teste de leitura do banco Supabase:</p>
-
-  <pre id="saida">Carregando dados...</pre>
-
-  <script type="module">
-    import { supabase } from './js/supabase.js'
-
-    const saida = document.getElementById('saida')
-
-    async function testarConexao() {
-      const { data, error } = await supabase
-        .from('fila')
-        .select('*')
-        .order('id', { ascending: true })
-
-      if (error) {
-        saida.textContent = 'Erro ao buscar dados: ' + error.message
-        console.error('Erro Supabase:', error)
-        return
-      }
-
-      saida.textContent = JSON.stringify(data, null, 2)
-      console.log('Dados recebidos:', data)
-    }
-
-    testarConexao()
-  </script>
+  <h1>Página funcionando</h1>
+  <p>Se você está vendo isso, o HTML carregou corretamente.</p>
 </body>
 </html>
