@@ -1,27 +1,72 @@
-<script type="module">
-import { supabase } from './js/supabase.js'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal</title>
+</head>
+<body>
+  <h1>Terminal de Senhas</h1>
 
-async function carregarFila(){
+  <button id="btnRetirar">Retirar Senha</button>
 
-  const { data } = await supabase
-    .from('fila')
-    .select('*')
-    .in('status',['aguardando','chamado'])
-    .order('senha',{ascending:true})
+  <p id="mensagem"></p>
 
-  const lista = document.getElementById("fila")
-  lista.innerHTML=""
+  <script type="module">
+    import { supabase } from './js/supabase.js'
 
-  data.forEach(s => {
-    const li = document.createElement("li")
-    li.textContent = "Senha " + s.senha + " - " + s.status
-    lista.appendChild(li)
-  })
+    const btnRetirar = document.getElementById('btnRetirar')
+    const mensagem = document.getElementById('mensagem')
 
-}
+    async function gerarSenha() {
+      mensagem.textContent = 'Gerando senha...'
 
-setInterval(carregarFila,2000)
-carregarFila()
-</script>
+      try {
+        const { data, error } = await supabase
+          .from('fila')
+          .select('senha')
+          .order('senha', { ascending: false })
+          .limit(1)
 
-<ul id="fila"></ul>
+        if (error) {
+          mensagem.textContent = 'Erro ao buscar última senha: ' + error.message
+          console.error(error)
+          return
+        }
+
+        let proxima = 1
+
+        if (data && data.length > 0 && data[0].senha != null) {
+          proxima = Number(data[0].senha) + 1
+        }
+
+        const { error: insertError } = await supabase
+          .from('fila')
+          .insert([
+            {
+              senha: proxima,
+              nome: 'Paciente',
+              prioritario: false,
+              status: 'aguardando',
+              hora_chegada: new Date().toISOString()
+            }
+          ])
+
+        if (insertError) {
+          mensagem.textContent = 'Erro ao inserir senha: ' + insertError.message
+          console.error(insertError)
+          return
+        }
+
+        mensagem.textContent = 'Senha gerada com sucesso: ' + proxima
+        alert('Senha gerada: ' + proxima)
+      } catch (e) {
+        mensagem.textContent = 'Erro geral: ' + e.message
+        console.error(e)
+      }
+    }
+
+    btnRetirar.addEventListener('click', gerarSenha)
+  </script>
+</body>
+</html>
